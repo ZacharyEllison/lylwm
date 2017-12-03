@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    <head><title>LYLWM | Register</title></head>
+{% endblock %}
+
+{% block main %}
+    <script>
+
+            $(document).ready(function() {
+
+                $("#registration").submit(function() {
+
+                    if (!$("#registration input[name=username]").val())
+                    {
+                        alert("missing username");
+                        return false;
+                    }
+                    else if (!$("#registration input[name=password]").val())
+                    {
+                        alert("missing password");
+                        return false;
+                    }
+                    else if ($("#registration input[name=password").val().length < 8)
+                    {
+                        alert("passwords must be longer than 8 characters")
+                        return false
+                    }
+                    else if ($("#registration input[name=password]").val() != $("#registration input[name=confirmation]").val())
+                    {
+                        alert("passwords don't match");
+                        return false;
+                    }
+                    return true;
+
+                });
+
+            });
+
+    </script>
+
+    {% if usrtkn == True %}
+        <header>
+            <div class="alert alert-primary border text-center text-warning" role="alert">
+                Username Taken
+            </div>
+        </header>
+    {% endif %}
+
+    <br />
+    <form id="registration" action="/register" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text"/>
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="password" placeholder="Password" type="password"/>
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="confirmation" placeholder="Confirm Password" type="password"/>
+        </div>
+        <button class="btn btn-primary" type="submit">Register</button>
+    </form>
+{% endblock %}

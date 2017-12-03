@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    <head><title>LYLWM | Adventures | Add More</title></head>
+{% endblock %}
+
+{% block main %}
+    <script>
+         $(document).ready(function() {
+                $("#upload").submit(function() {
+                    if (!$("#upload input[name=file]").val())
+                    {
+                        alert("Choose a file");
+                        return false;
+                    }
+                    return true;
+                });
+            });
+    </script>
+
+    <form id="upload" action="/upload" method = "POST" enctype = "multipart/form-data">
+         <div class="form-group"><input type="file" name="file" /></div>
+        <button class="btn btn-primary" type="submit">Upload</button>
+    </form>
+    <br />
+    <form id="file_info"></form>
+
+{% endblock %}

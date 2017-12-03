@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    <head><title>LYLWM | Log In</title></head>
+{% endblock %}
+
+{% block main %}
+    <script>
+         $(document).ready(function() {
+
+                $("#login").submit(function() {
+
+                    if (!$("#login input[name=username]").val())
+                    {
+                        alert("missing username");
+                        return false;
+                    }
+                    else if (!$("#login input[name=password]").val())
+                    {
+                        alert("missing password");
+                        return false;
+                    }
+                    return true;
+
+                });
+
+            });
+    </script>
+
+    {% if pass_wrong == True %}
+        <header>
+            <div class="alert alert-primary border text-center text-warning" role="alert">
+                Wrong password
+            </div>
+        </header>
+    {% endif %}
+
+    <form id="login" action="/login" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text"/>
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="password" placeholder="Password" type="password"/>
+        </div>
+        <button class="btn btn-primary" type="submit">Log In</button>
+    </form>
+{% endblock %}
