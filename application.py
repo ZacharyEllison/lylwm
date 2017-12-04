@@ -53,6 +53,8 @@ def today():
 def upload():
     """Uploads a file to the db and home folder"""
 
+    tags = items.distinct( "tags" )
+
     # Flask documentation shows uploads are the following
     if request.method == 'POST':
         file = request.files['file']
@@ -62,12 +64,14 @@ def upload():
         flash("File uploaded successfully")
         return redirect("/")
     else:
-        return render_template("upload.html")
+        return render_template("upload.html", tags=tags)
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user"""
+
+    usrtkn = False
 
     # Forget any user_id from Session
     session.clear()
@@ -76,16 +80,16 @@ def register():
     if request.method == "POST":
 
         # JS checks for pass and user so we'll deal with db
-        usr = request.form.get(usrnm)
-        pswd = request.form.get(pswd) 
+        usr = request.form.get("username")
+        pswd_get = request.form.get("password") 
 
         # If the username exists in the db
         if users.find_one({usrnm: usr}):
             # Attempt to limit the steps the user takes with a flash and redirect back, so no error page
-            return redirect("/register", usrtkn=True)
+            return render_template("register.html", usrtkn=True)
 
         # Make an object that represents the new user to be inserted
-        new_user = {usrnm: usr, pswd: generate_password_hash(pswd)}        
+        new_user = {'username': usr, 'password': generate_password_hash(pswd_get)}        
 
         # This command inserts the new user dict object and collects the unique id
         new_id = users.insert_one(new_user).inserted_id
@@ -124,15 +128,15 @@ def login():
     if request.method == "POST":
 
         # JS takes care of text entry so collect the user and pass
-        usr = request.form.get(usrnm)
-        psw = request.form.get(pswd)
+        usr = request.form.get('username')
+        psw = request.form.get('password')
 
         # check the password against database
         check_usr = users.find_one({usrnm: usr})
 
         # If the password is wrong reload the page with the pass_wrong banner and try again
-        if check_user[pswd] != check_password_hash(psw):
-            return redirect("/login", pass_wrong = True)
+        if check_usr[pswd] != check_password_hash(request.form.get('password') ):
+            return render_template("login.html", pass_wrong = True)
 
         # Else it's correct
         Session["user_id"] = check_usr['_id']
