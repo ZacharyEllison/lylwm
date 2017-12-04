@@ -62,7 +62,7 @@ def explore(pg_number):
 
 @app.route("/adventures/download.<item_id>")
 def download(item_id):
-    """Give download and redirect back to explore"""
+    """Give download and redirect back to explore, the big thing here is the html"""
     flash("TODO")
     return redirect("/")
 
