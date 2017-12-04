@@ -24,9 +24,12 @@ users = home_db.users
 items = home_db.items
 
 def get_app():
+
     print("starting server")
     app = Flask(__name__)
     app.secret_key="adventureisoutthere"
+    # to make sure of the new app instance
+    now = datetime.now()
 
     # Ensure responses aren't cached
     @app.after_request
@@ -148,6 +151,39 @@ def get_app():
         # User reached route via GET (as by clicking a link or via redirect)
         else:
             return render_template("login.html", pass_wrong = False)
+
+
+    @app.route('/reload')
+    def reload():
+        global to_reload
+        to_reload = True
+        return "reloaded"
+
+    return app
+
+
+class AppReloader(object):
+    def __init__(self, create_app):
+        self.create_app = create_app
+        self.app = create_app()
+
+    def get_application(self):
+        global to_reload
+        if to_reload:
+            self.app = self.create_app()
+            to_reload = False
+
+        return self.app
+
+    def __call__(self, environ, start_response):
+        app = self.get_application()
+        return app(environ, start_response)
+
+
+# This application object can be used in any WSGI server
+# for example in gunicorn, you can run "gunicorn app"
+application = AppReloader(get_app)
+
 
 if __name__ == '__main__':
     run_simple('localhost', 5000, application,
