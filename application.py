@@ -8,7 +8,7 @@ from werkzeug.serving import run_simple
 from pymongo import MongoClient
 from helpers import port, UPLOAD, usrnm, pswd
 import pymongo
-import datetime
+from datetime import datetime
 import os
 
 # Setup for pymongo with port in helpers.py and the databases I'll use
@@ -18,176 +18,139 @@ home_db = client['home']
 users = home_db.users
 items = home_db.items
 
-def get_app():
+print("starting server")
+app = Flask(__name__)
+app.secret_key="adventureisoutthere"
+# to make sure of the new app instance
 
-    print("starting server")
-    app = Flask(__name__)
-    app.secret_key="adventureisoutthere"
-    # to make sure of the new app instance
-    
-    now = datetime.now()
+now = datetime.now()
 
-    # Configure session to use filesystem (instead of signed cookies)
-    app.config["SESSION_FILE_DIR"] = mkdtemp()
-    app.config["SESSION_PERMANENT"] = False
-    app.config["SESSION_TYPE"] = "filesystem"
-    app.config['UPLOAD_FOLDER'] = UPLOAD
-    Session(app)
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_FILE_DIR"] = mkdtemp()
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+app.config['UPLOAD_FOLDER'] = UPLOAD
+Session(app)
 
-    # Ensure responses aren't cached
-    @app.after_request
-    def after_request(response):
-        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-        response.headers["Expires"] = 0
-        response.headers["Pragma"] = "no-cache"
-        return response
+# Ensure responses aren't cached
+@app.after_request
+def after_request(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
 
-    @app.route("/")
-    def index():
-        """Main Page"""
-        return render_template("index.html")
+@app.route("/")
+def index():
+    """Main Page"""
+    return render_template("index.html")
 
 
-    @app.route("/adventures/today")
-    def today():
-        """This Page is meant to expand with time, for now it will be a way to look at what was uploaded or downloaded today"""
-        flash("This feature is still being produced")
+@app.route("/adventures/today")
+def today():
+    """This Page is meant to expand with time, for now it will be a way to look at what was uploaded or downloaded today"""
+    flash("TODO")
+    return redirect("/")
+
+
+@app.route("/adventures/addmore", methods=["GET", "POST"])
+def upload():
+    """Uploads a file to the db and home folder"""
+
+    tags = items.distinct( "tags" )
+
+    # Flask documentation shows uploads are the following
+    if request.method == 'POST':
+        file = request.files['file']
+        # I will add to the database here
+        # I want to track the filename, size, type, date added, user who added, tags, permissions,
+        file.save(os.path.join(UPLOAD, secure_filename(file.filename)))
+        """TODO"""
+        flash("File uploaded successfully")
+        return redirect("/")
+    else:
+        return render_template("upload.html", tags=tags)
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Register user"""
+
+    usrtkn = False
+
+    # Forget any user_id from Session
+    session.clear()
+
+    # User reached the route via POST (submitting a form)
+    if request.method == "POST":
+
+        # JS checks for pass and user so we'll deal with db
+        usr = request.form.get("username")
+        pswd_get = request.form.get("password") 
+
+        # If the username exists in the db
+        if users.find_one({usrnm: usr}):
+            # Attempt to limit the steps the user takes with a flash and redirect back, so no error page
+            return render_template("register.html", usrtkn=True)
+
+        # Make an object that represents the new user to be inserted
+        new_user = {'username': usr, 'password': generate_password_hash(pswd_get)}        
+
+        # This command inserts the new user dict object and collects the unique id
+        new_id = users.insert_one(new_user).inserted_id
+
+        # Redirect user to home page when correct and done
+        flash("Account successfully created")
+        # Remember which user has logged in
+        session["user_id"] = new_id
         return redirect("/")
 
-
-    @app.route("/adventures/addmore", methods=["GET", "POST"])
-    def upload():
-        """Uploads a file to the db and home folder"""
-
-        tags = items.distinct( "tags" )
-
-        # Flask documentation shows uploads are the following
-        if request.method == 'POST':
-            file = request.files['file']
-            # I will add to the database here
-            # I want to track the filename, size, type, date added, user who added, tags, permissions,
-            file.save(os.path.join(UPLOAD, secure_filename(file.filename)))
-            flash("File uploaded successfully")
-            return redirect("/")
-        else:
-            return render_template("upload.html", tags=tags)
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        return render_template("register.html", usrtkn=False)
 
 
-    @app.route("/register", methods=["GET", "POST"])
-    def register():
-        """Register user"""
+@app.route("/logout")
+def logout():
+    """Log user out"""
 
-        usrtkn = False
+    # Forget any user_id
+    session.clear()
 
-        # Forget any user_id from Session
-        session.clear()
-
-        # User reached the route via POST (submitting a form)
-        if request.method == "POST":
-
-            # JS checks for pass and user so we'll deal with db
-            usr = request.form.get("username")
-            pswd_get = request.form.get("password") 
-
-            # If the username exists in the db
-            if users.find_one({usrnm: usr}):
-                # Attempt to limit the steps the user takes with a flash and redirect back, so no error page
-                return render_template("register.html", usrtkn=True)
-
-            # Make an object that represents the new user to be inserted
-            new_user = {'username': usr, 'password': generate_password_hash(pswd_get)}        
-
-            # This command inserts the new user dict object and collects the unique id
-            new_id = users.insert_one(new_user).inserted_id
-
-            # Redirect user to home page when correct and done
-            flash("Account successfully created")
-            # Remember which user has logged in
-            session["user_id"] = new_id
-            return redirect("/")
-
-        # User reached route via GET (as by clicking a link or via redirect)
-        else:
-            return render_template("register.html", usrtkn=False)
+    # Redirect user to login form
+    flash("Logout successful")
+    return redirect("/")
 
 
-    @app.route("/logout")
-    def logout():
-        """Log user out"""
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Log user in"""
 
-        # Forget any user_id
-        session.clear()
+    # Forget any user_id
+    session.clear()
 
-        # Redirect user to login form
-        flash("Logout successful")
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        # JS takes care of text entry so collect the user and pass
+        usr = request.form.get('username')
+        psw = request.form.get('password')
+
+        # check the password against database
+        check_usr = users.find_one({usrnm: usr})
+
+        # If the password is wrong reload the page with the pass_wrong banner and try again
+        if check_usr[pswd] != check_password_hash(request.form.get('password') ):
+            return render_template("login.html", pass_wrong = True)
+
+        # Else it's correct
+        Session["user_id"] = check_usr['_id']
+
+        # Redirect user to home page
+        flash("Successfully logged in")
         return redirect("/")
 
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        return render_template("login.html", pass_wrong = False)
 
-    @app.route("/login", methods=["GET", "POST"])
-    def login():
-        """Log user in"""
-
-        # Forget any user_id
-        session.clear()
-
-        # User reached route via POST (as by submitting a form via POST)
-        if request.method == "POST":
-
-            # JS takes care of text entry so collect the user and pass
-            usr = request.form.get('username')
-            psw = request.form.get('password')
-
-            # check the password against database
-            check_usr = users.find_one({usrnm: usr})
-
-            # If the password is wrong reload the page with the pass_wrong banner and try again
-            if check_usr[pswd] != check_password_hash(request.form.get('password') ):
-                return render_template("login.html", pass_wrong = True)
-
-            # Else it's correct
-            Session["user_id"] = check_usr['_id']
-
-            # Redirect user to home page
-            flash("Successfully logged in")
-            return redirect("/")
-
-        # User reached route via GET (as by clicking a link or via redirect)
-        else:
-            return render_template("login.html", pass_wrong = False)
-
-
-    @app.route('/reload')
-    def reload():
-        global to_reload
-        to_reload = True
-        return "reloaded"
-
-    return app
-
-
-class AppReloader(object):
-    def __init__(self, create_app):
-        self.create_app = create_app
-        self.app = create_app()
-
-    def get_application(self):
-        global to_reload
-        if to_reload:
-            self.app = self.create_app()
-            to_reload = False
-
-        return self.app
-
-    def __call__(self, environ, start_response):
-        app = self.get_application()
-        return app(environ, start_response)
-
-
-# This application object can be used in any WSGI server
-# for example in gunicorn, you can run "gunicorn app"
-application = AppReloader(get_app)
-
-
-if __name__ == '__main__':
-    run_simple('localhost', 5000, application,
-use_reloader=True, use_debugger=True, use_evalex=True)
