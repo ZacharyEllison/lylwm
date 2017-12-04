@@ -4,7 +4,6 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from werkzeug.serving import run_simple
 from pymongo import MongoClient
 from helpers import port, UPLOAD, usrnm, pswd
 import pymongo
@@ -116,7 +115,7 @@ def register():
         # Redirect user to home page when correct and done
         flash("Account successfully created")
         # Remember which user has logged in
-        session["user_id"] = new_id
+        session["user_id"] = str(new_id)
         return redirect("/")
 
     # User reached route via GET (as by clicking a link or via redirect)
@@ -152,13 +151,14 @@ def login():
 
         # check the password against database
         check_usr = users.find_one({usrnm: usr})
+        # I'm raising the exception that check_usr is non subscriptable but it is in my tests
 
         # If the password is wrong reload the page with the pass_wrong banner and try again
-        if check_usr[pswd] != check_password_hash(request.form.get('password') ):
+        if not check_password_hash(check_usr[pswd], psw):
             return render_template("login.html", pass_wrong = True)
 
         # Else it's correct
-        Session["user_id"] = check_usr['_id']
+        Session["user_id"] = str(check_usr['_id'])
 
         # Redirect user to home page
         flash("Successfully logged in")
