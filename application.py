@@ -4,6 +4,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
+from werkzeug.serving import run_simple
 from pymongo import MongoClient
 from helpers import port, UPLOAD, usrnm, pswd
 import pymongo
