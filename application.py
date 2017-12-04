@@ -12,7 +12,6 @@ from datetime import datetime
 import os
 
 # Setup for pymongo with port in helpers.py and the databases I'll use
-# before get_app so the connection to the database is independent of website
 client = MongoClient('localhost', port)
 home_db = client['home']
 users = home_db.users
@@ -48,7 +47,22 @@ def index():
 
 @app.route("/adventures/today")
 def today():
-    """This Page is meant to expand with time, for now it will be a way to look at what was uploaded or downloaded today"""
+    """This Page is meant to expand with time, for now it will be a way to look at what was uploaded or downloaded today by whom"""
+    flash("TODO")
+    return redirect("/")
+
+
+
+@app.route("/adventures/explore.pg<pg_number>")
+def explore(pg_number):
+    """Display files based on page"""
+    flash("TODO")
+    return redirect("/")
+
+
+@app.route("/adventures/download.<item_id>")
+def download(item_id):
+    """Give download and redirect back to explore"""
     flash("TODO")
     return redirect("/")
 
