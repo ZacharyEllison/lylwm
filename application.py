@@ -10,14 +10,8 @@ import pymongo
 import datetime
 import os
 
-# Configure session to use filesystem (instead of signed cookies)
-app.config["SESSION_FILE_DIR"] = mkdtemp()
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-app.config['UPLOAD_FOLDER'] = UPLOAD
-Session(app)
-
 # Setup for pymongo with port in helpers.py and the databases I'll use
+# before get_app so the connection to the database is independent of website
 client = MongoClient('localhost', port)
 home_db = client['home']
 users = home_db.users
@@ -29,7 +23,15 @@ def get_app():
     app = Flask(__name__)
     app.secret_key="adventureisoutthere"
     # to make sure of the new app instance
+    
     now = datetime.now()
+
+    # Configure session to use filesystem (instead of signed cookies)
+    app.config["SESSION_FILE_DIR"] = mkdtemp()
+    app.config["SESSION_PERMANENT"] = False
+    app.config["SESSION_TYPE"] = "filesystem"
+    app.config['UPLOAD_FOLDER'] = UPLOAD
+    Session(app)
 
     # Ensure responses aren't cached
     @app.after_request
