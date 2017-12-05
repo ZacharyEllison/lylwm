@@ -2,7 +2,7 @@ from flask import Flask, flash, redirect, render_template
 from flask import request, session, send_from_directory, url_for, g
 from flask_session import Session
 from tempfile import mkdtemp
-from bson import objectid
+from bson.objectid import ObjectId
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
@@ -72,7 +72,7 @@ def explore():
     return render_template("explore.html", items=list_items)
 
 
-@app.route("/download?<path:fileid>")
+@app.route("/download/<string:fileid>")
 @login_required
 def download(filename):
     """Give download and redirect back to explore, the big thing here is the html"""
@@ -80,11 +80,16 @@ def download(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
-@app.route("/delete?<path:fileid>")
+@app.route("/delete/<string:file_id>")
 @login_required
-def delete(filename):
-    flash("TODO")
-    return redirect(request.url)
+def delete(file_id):
+    # Delete from Database
+    items.delete_one({'_id': ObjectId(file_id)})
+    if items.find_one({'_id': file_id}):
+        os.remove(os.path.join(UPLOAD, items.find_one({'_id': file_id})['name']))
+
+    flash("successfully deleted file")
+    return redirect("/explore")
 
 
 @app.route("/upload", methods=["GET", "POST"])
@@ -121,7 +126,7 @@ def upload():
                 "type": file.filename.split(".")[1],
                 "size": os.stat(os.path.join(UPLOAD, secure_filename(file.filename))).st_size,
                 "location": os.path.join(UPLOAD, secure_filename(file.filename)),
-                "owner": users.find_one({'_id': objectid.ObjectId(session["user_id"])}),
+                "owner": users.find_one({'_id': ObjectId(session["user_id"])})['username'],
                 "permission": request.form.getlist("permission"),
                 "tags": request.form.get("new_tag").split(" "),
                 "date": datetime.now()
