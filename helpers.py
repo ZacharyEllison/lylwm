@@ -6,7 +6,7 @@ usrnm = 'username'
 pswd = 'password'
 
 class Document:
-    
+
     """Here there should be
         string filename
         string filetype

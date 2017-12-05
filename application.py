@@ -66,7 +66,7 @@ def download(item_id):
     return redirect("/")
 
 
-@app.route("/adventures/addmore", methods=["GET", "POST"])
+@app.route("/upload", methods=["GET", "POST"])
 def upload():
     """Uploads a file to the db and home folder"""
 
@@ -99,7 +99,7 @@ def register():
 
         # JS checks for pass and user so we'll deal with db
         usr = request.form.get("username")
-        pswd_get = request.form.get("password") 
+        pswd_get = request.form.get("password")
 
         # If the username exists in the db
         if users.find_one({usrnm: usr}):
@@ -107,7 +107,7 @@ def register():
             return render_template("register.html", usrtkn=True)
 
         # Make an object that represents the new user to be inserted
-        new_user = {'username': usr, 'password': generate_password_hash(pswd_get)}        
+        new_user = {'username': usr, 'password': generate_password_hash(pswd_get)}
 
         # This command inserts the new user dict object and collects the unique id
         new_id = users.insert_one(new_user).inserted_id
@@ -148,9 +148,14 @@ def login():
         # JS takes care of text entry so collect the user and pass
         usr = request.form.get('username')
         psw = request.form.get('password')
-
+        print(usr + " " + psw)
         # check the password against database
-        check_usr = users.find_one({usrnm: usr})
+        if not users.find_one({'username': usr}):
+            flash("user not found")
+            return redirect("/")
+        print(users.find_one({'username': usr}))
+        check_usr = users.find_one({'username': usr})
+
         # I'm raising the exception that check_usr is non subscriptable but it is in my tests
 
         # If the password is wrong reload the page with the pass_wrong banner and try again
@@ -158,7 +163,7 @@ def login():
             return render_template("login.html", pass_wrong = True)
 
         # Else it's correct
-        Session["user_id"] = str(check_usr['_id'])
+        session["user_id"] = str(check_usr['_id'])
 
         # Redirect user to home page
         flash("Successfully logged in")

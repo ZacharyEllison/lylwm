@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
-{% block title %}
-    <head><title>LYLWM | Adventures | Add More</title></head>
+{% block head %}
+    <title>LYLWM | Adventures | Add More</title>
 {% endblock %}
 
 {% block main %}
@@ -21,7 +21,7 @@
     <form id="upload" action="/upload" method = "POST" enctype = "multipart/form-data">
         <div class="form-group"><input type="file" name="file" /></div>
         <br />
-        <div class="form-group">
+        <div class="form-group">Tags:
             <select name="tag" placeholder="Tags">
                 {% for tag in tags %}
                     <option value="{{tag}}">{{tag}}</option>
@@ -29,7 +29,7 @@
             </select>
         </div>
         <div class="form-group"><input autocomplete="on" name="new_tag" placeholder="New Tags" type="text"></div>
-        <div class="form-group">Can others delete this?<input name="permission" value="Can others delete?" type="checkbox"></div>
+        <div class="form-group">Can others delete this?  <input name="permission" value="Can others delete?" type="checkbox"></div>
         <br />
         <button class="btn btn-primary" type="submit">Upload</button>
 
