@@ -26,12 +26,11 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-"""Here there should be
+"""Document should be
         string filename
         string filetype
         string file size
         string location
         string user who uploaded
         whether others can delete
-        But might not need this
 """

@@ -22,7 +22,7 @@
         <div class="form-group"><input type="file" name="file" /></div>
         <br />
         <div class="form-group">Tags:
-            <select name="tag" placeholder="Tags">
+            <select multiple name="tag" placeholder="Tags">
                 {% for tag in tags %}
                     <option value="{{tag}}">{{tag}}</option>
                 {% endfor %}
@@ -31,7 +31,7 @@
         <div class="form-group"><input autocomplete="on" name="new_tag" placeholder="New Tags (separated by a space)" type="text"></div>
         <div class="form-group">Can others delete this?  <input name="permission" value="Can others delete?" type="checkbox"></div>
         <br />
-        <button class="btn btn-primary" type="submit">Upload</button>
+        <button class="btn btn-success" type="submit">Upload</button>
 
     </form>
 

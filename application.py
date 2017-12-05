@@ -2,6 +2,7 @@ from flask import Flask, flash, redirect, render_template
 from flask import request, session, send_from_directory, url_for, g
 from flask_session import Session
 from tempfile import mkdtemp
+from bson import objectid
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
@@ -63,12 +64,12 @@ def today():
 
 
 
-@app.route("/adventures_pg?<path:pg_number>")
+@app.route("/explore")
 @login_required
-def explore(pg_number):
+def explore():
     """Display files based on page"""
-    flash("TODO")
-    return redirect("/")
+    list_items = items.find({})
+    return render_template("explore.html", items=list_items)
 
 
 @app.route("/download?<path:fileid>")
@@ -83,7 +84,7 @@ def download(filename):
 @login_required
 def delete(filename):
     flash("TODO")
-    return redirect('/')
+    return redirect(request.url)
 
 
 @app.route("/upload", methods=["GET", "POST"])
@@ -120,8 +121,8 @@ def upload():
                 "type": file.filename.split(".")[1],
                 "size": os.stat(os.path.join(UPLOAD, secure_filename(file.filename))).st_size,
                 "location": os.path.join(UPLOAD, secure_filename(file.filename)),
-                "owner": session["user_id"],
-                "permission": request.form.get("permission"),
+                "owner": users.find_one({'_id': objectid.ObjectId(session["user_id"])}),
+                "permission": request.form.getlist("permission"),
                 "tags": request.form.get("new_tag").split(" "),
                 "date": datetime.now()
             })
