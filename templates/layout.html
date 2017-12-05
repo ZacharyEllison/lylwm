@@ -20,59 +20,58 @@
 
     </head>
 
+    {% if get_flashed_messages() %}
+        <header>
+            <div class="alert alert-primary border text-center text-warning" role="alert">
+                {% for message in get_flashed_messages() %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        </header>
+    {% endif %}
+
     <body>
     <div class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <div class="container">
-        <a href="../" class="navbar-brand">Live Your Life With Me</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-                {% if session.user_id %}
-                    <div class="collapse navbar-collapse" id="navbarResponsive">
-                        <ul class="navbar-nav">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="adventures">Adventures <span class="caret"></span></a>
-                            <div class="dropdown-menu" aria-labelledby="adventures">
-                                <a class="dropdown-item" href="/today">Today (coming)</a>
-                            <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="/upload">Add More (coming)</a>
-                                <a class="dropdown-item" href="/explore">Explore (coming)</a>
-                            </div>
-                    </div>
-                    <ul class="navbar-nav ml-auto mt-2">
-                        <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
-                    </ul>
-                {% else %}
-                    <ul class="navbar-nav ml-auto mt-2">
-                        <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/login">Log In</a></li>
-                    </ul>
-                {% endif %}
-            </div>
-        </nav>
-
+        <div class="container">
+            <a href="../" class="navbar-brand">Live Your Life With Me</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            {% if session.user_id %}
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="adventures">Adventures <span class="caret"></span></a>
+                        <div class="dropdown-menu" aria-labelledby="adventures">
+                            <a class="dropdown-item" href="/today">Today (coming)</a>
+                        <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/upload">Add More (coming)</a>
+                            <a class="dropdown-item" href="/explore">Explore (coming)</a>
+                        </div>
+                </div>
+                <ul class="navbar-nav ml-auto mt-2">
+                    <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+                </ul>
+            {% else %}
+                <ul class="navbar-nav ml-auto mt-2">
+                    <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/login">Log In</a></li>
+                </ul>
+            {% endif %}
         </div>
-      </div>
+        </nav>
     </div>
 
 
-        {% if get_flashed_messages() %}
-            <header>
-                <div class="alert alert-primary border text-center text-warning" role="alert">
-                    {% for message in get_flashed_messages() %}
-                        {{ message }}
-                    {% endfor %}
-                </div>
-            </header>
-        {% endif %}
+    <main class="container p-5">
+        {% block main %}{% endblock %}
+    </main>
 
-        <main class="container p-5">
-            {% block main %}{% endblock %}
-        </main>
-
-	<div id="footer">Live Your Life With Me<br />
-	Zachary Ellison<br />
-	1997-
+    <footer>
+    	<div id="footer">Live Your Life With Me<br />
+	    Zachary Ellison<br />
+	    1997-
+	    </div>
 	</footer>
     </body>
 
