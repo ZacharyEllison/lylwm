@@ -24,7 +24,6 @@ app = Flask(__name__)
 app.secret_key="adventureisoutthere"
 # to make sure of the new app instance
 
-now = datetime.now()
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_FILE_DIR"] = mkdtemp()
