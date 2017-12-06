@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template
+from flask import Flask, flash, redirect, render_template, current_app
 from flask import request, session, send_from_directory, url_for, g
 from flask_session import Session
 from tempfile import mkdtemp
@@ -75,9 +75,10 @@ def explore():
 @login_required
 def download(fileid):
     """Give download and redirect back to explore, the big thing here is the html"""
+
+    file_give = items.find_one({'_id': ObjectId(fileid)})
     # Check for the file to exist
-    if items.find_one({'_id': fileid}):
-        file_give = items.find_one({'_id': fileid})
+    if items.find_one({'_id': ObjectId(fileid)}):
 
         # Record the action
         record.insert_one({
@@ -88,37 +89,44 @@ def download(fileid):
         })
 
         # All is well and working
-        flash("Download Successful")
-        send_from_directory(app.config['UPLOAD_FOLDER'], file_give)
-        return redirect('/explore')
+        uploads = os.path.join(current_app.root_path, UPLOAD)
+        return send_from_directory(directory=uploads, filename=file_give['name'], as_attachment=True)
 
+    else:
+        flash("File not found")
+        return redirect('/explore')
 
 @app.route("/delete/<string:file_id>")
 @login_required
 def delete(file_id):
 
-    del_item = items.find_one({'_id': file_id})
 
     # Check if the file exists
-    if items.find_one({'_id': file_id}):
+    if items.find_one({'_id': ObjectId(file_id)}) is not None:
+
+        # Access as a local variable
+        del_item = items.find_one({'_id': ObjectId(file_id)})
         # check permission
         if del_item['permission'] == "Yes":
             # Delete from database then system
             items.delete_one({'_id': ObjectId(file_id)})
-            os.remove(os.path.join(UPLOAD, del_item['name']))
+            os.remove(os.path.join(os.path.join(current_app.root_path, UPLOAD), del_item['name']))
 
             # Record the action
             record.insert_one({
                 'user': session["user_id"],
                 "action": "Delete",
-                "file": items.find_one({'_id': file_id})['name'],
+                "file": del_item['name'],
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M")
             })
 
-        flash("successfully deleted file")
-        return redirect("/explore")
+            flash("successfully deleted file")
+            return redirect("/explore")
+        else:
+            flash("You don't have permission for that")
+            return redirect("/explore")
     else:
-        flash("You don't have permission for that")
+        flash("File not found")
         return redirect("/explore")
 
 
