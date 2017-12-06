@@ -17,13 +17,13 @@ client = MongoClient('localhost', port)
 home_db = client['home']
 users = home_db.users
 items = home_db.items
+record = home_db.record
 
 print("starting server")
 app = Flask(__name__)
 app.secret_key="adventureisoutthere"
 # to make sure of the new app instance
 
-now = datetime.now()
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_FILE_DIR"] = mkdtemp()
@@ -63,7 +63,6 @@ def today():
     return redirect("/")
 
 
-
 @app.route("/explore")
 @login_required
 def explore():
@@ -74,10 +73,24 @@ def explore():
 
 @app.route("/download/<string:fileid>")
 @login_required
-def download(filename):
+def download(fileid):
     """Give download and redirect back to explore, the big thing here is the html"""
-    flash("TODO")
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    # Check for the file to exist
+    if items.find_one({'_id': fileid}):
+        file_give = items.find_one({'_id': fileid})
+
+        # Record the action
+        record.insert_one({
+            'user': session["user_id"],
+            'action': 'Download',
+            'file': file_give['name'],
+            'date': datetime.now().strftime("%Y-%m-%d %H:%M")
+        })
+
+        # All is well and working
+        flash("Download Successful")
+        send_from_directory(app.config['UPLOAD_FOLDER'], file_give)
+        return redirect('/explore')
 
 
 @app.route("/delete/<string:file_id>")
@@ -85,17 +98,28 @@ def download(filename):
 def delete(file_id):
 
     del_item = items.find_one({'_id': file_id})
-    # check permission
-    if del_item['permission'] == "Yes":
-        # Delete from database then system
-        items.delete_one({'_id': ObjectId(file_id)})
-        os.remove(os.path.join(UPLOAD, items.find_one({'_id': file_id})['name']))
+
+    # Check if the file exists
+    if items.find_one({'_id': file_id}):
+        # check permission
+        if del_item['permission'] == "Yes":
+            # Delete from database then system
+            items.delete_one({'_id': ObjectId(file_id)})
+            os.remove(os.path.join(UPLOAD, del_item['name']))
+
+            # Record the action
+            record.insert_one({
+                'user': session["user_id"],
+                "action": "Delete",
+                "file": items.find_one({'_id': file_id})['name'],
+                "date": datetime.now().strftime("%Y-%m-%d %H:%M")
+            })
 
         flash("successfully deleted file")
         return redirect("/explore")
     else:
         flash("You don't have permission for that")
-        return redirect(request.url)
+        return redirect("/explore")
 
 
 @app.route("/upload", methods=["GET", "POST"])
@@ -140,11 +164,22 @@ def upload():
                 "owner": users.find_one({'_id': ObjectId(session["user_id"])})['username'],
                 "permission": perm_tf,
                 "tags": request.form.get("new_tag").split(" "),
-                "date": datetime.date.today.ctime()
+                "date": datetime.now().strftime("%Y-%m-%d %H:%M")
             })
 
+            # Let the record track uploads and downloads
+            record.insert_one({
+                "user": session["user_id"],
+                "action": 'Upload',
+                "file": file.filename,
+                "Date": datetime.now().strftime("%Y-%m-%d %H:%M")
+            })
+
+            # All worked well
             flash("File uploaded successfully")
             return redirect("/")
+
+        # It's not an allowed file
         else:
             flash("Unsupported file type")
             return redirect(url_for("upload"))
