@@ -83,13 +83,19 @@ def download(filename):
 @app.route("/delete/<string:file_id>")
 @login_required
 def delete(file_id):
-    # Delete from Database
-    items.delete_one({'_id': ObjectId(file_id)})
-    if items.find_one({'_id': file_id}):
+
+    del_item = items.find_one({'_id': file_id})
+    # check permission
+    if del_item['permission'] == "Yes":
+        # Delete from database then system
+        items.delete_one({'_id': ObjectId(file_id)})
         os.remove(os.path.join(UPLOAD, items.find_one({'_id': file_id})['name']))
 
-    flash("successfully deleted file")
-    return redirect("/explore")
+        flash("successfully deleted file")
+        return redirect("/explore")
+    else:
+        flash("You don't have permission for that")
+        return redirect(request.url)
 
 
 @app.route("/upload", methods=["GET", "POST"])
@@ -119,6 +125,11 @@ def upload():
 
             file.save(os.path.join(UPLOAD, secure_filename(file.filename)))
 
+            if request.form.getlist("permission"):
+                perm_tf = 'Yes'
+            else:
+                perm_tf = 'No'
+
             # I will add to the database here
             # I want to track the filename, size, type, date added, user who added, tags, permissions,
             items.insert_one({
@@ -127,9 +138,9 @@ def upload():
                 "size": os.stat(os.path.join(UPLOAD, secure_filename(file.filename))).st_size,
                 "location": os.path.join(UPLOAD, secure_filename(file.filename)),
                 "owner": users.find_one({'_id': ObjectId(session["user_id"])})['username'],
-                "permission": request.form.getlist("permission"),
+                "permission": perm_tf,
                 "tags": request.form.get("new_tag").split(" "),
-                "date": datetime.now()
+                "date": datetime.date.today.ctime()
             })
 
             flash("File uploaded successfully")
@@ -208,7 +219,7 @@ def login():
         # check the password against database
         if not users.find_one({'username': usr}):
             flash("user not found")
-            return redirect("/")
+            return redirect(request.url)
         print(users.find_one({'username': usr}))
         check_usr = users.find_one({'username': usr})
 
