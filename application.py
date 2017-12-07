@@ -13,7 +13,7 @@ from datetime import datetime
 import os
 
 # Setup for pymongo with port in helpers.py and the databases I'll use
-client = MongoClient("mongodb://Admin:<S3reverPassword>@cluster0-sgit7.mongodb.net/home")
+client = MongoClient("mongodb://Admin:<S3reverPassword>@cluster0-sgit7.mongodb.net/test")
 
 home_db = client['home']
 users = home_db.users
