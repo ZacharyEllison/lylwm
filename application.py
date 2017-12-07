@@ -7,7 +7,7 @@ from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
-from helpers import port, UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required
+from helpers import UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required
 import pymongo
 from datetime import datetime
 import os
