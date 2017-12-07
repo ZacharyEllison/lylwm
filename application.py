@@ -7,13 +7,14 @@ from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
-from helpers import port, UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required
+from helpers import UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required
 import pymongo
 from datetime import datetime
 import os
 
 # Setup for pymongo with port in helpers.py and the databases I'll use
-client = MongoClient('localhost', port)
+client = MongoClient("mongodb://Admin:<S3reverPassword>@cluster0-sgit7.mongodb.net/home")
+
 home_db = client['home']
 users = home_db.users
 items = home_db.items
