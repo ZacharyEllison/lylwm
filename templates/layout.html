@@ -16,7 +16,9 @@
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
-
+        {% block head %}
+            <title>LYLWM | {% block title %}{%endblock%}</title>
+        {% endblock %}
 
     </head>
 
@@ -43,7 +45,7 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="adventures">Adventures <span class="caret"></span></a>
                         <div class="dropdown-menu" aria-labelledby="adventures">
-                            <a class="dropdown-item" href="/today">Today (coming)</a>
+                            <a class="dropdown-item disabled" href="/today">Today (coming)</a>
                         <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="/upload">Add More</a>
                             <a class="dropdown-item" href="/explore">Explore</a>

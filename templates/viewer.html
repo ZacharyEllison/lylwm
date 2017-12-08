@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block head %}{% block title %}Viewer{% endblock %}{% endblock %}
+
+{% block main %}
+    <br />
+    <div class"jumbotron">
+        <h1>{{file['name']}}</h1>
+        <br />
+        <img src="static/images/{{file['name']}}" alt="{{file['name']}}">
+        <table class="table table-striped table-hover table-bordered">
+            <th class="table-info">
+                <td>Owner</td>
+                <td>Date</td>
+                <td>Tags</td>
+            </th>
+            <tr>
+                <td>{{file['owner']}}</td>
+                <td>{{file['date']}}</td>
+                <td>{{file['tags']}}</td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}

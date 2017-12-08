@@ -11,7 +11,8 @@ port = 31416
 UPLOAD='/home/lylwm/lylwm/static/home/'
 usrnm = 'username'
 pswd = 'password'
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx'])
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'bmp'])
+IMG_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif', 'bmp'])
 
 def login_required(f):
     """

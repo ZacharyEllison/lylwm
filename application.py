@@ -7,7 +7,7 @@ from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
-from helpers import UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required
+from helpers import UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required, IMG_EXTENSIONS
 import pymongo
 from datetime import datetime
 import os
@@ -72,7 +72,18 @@ def today():
 def explore():
     """Display files based on page"""
     list_items = items.find({})
-    return render_template("explore.html", items=list_items)
+    return render_template("explore.html", items=list_items, img_list=IMG_EXTENSIONS)
+
+
+@app.route('/viewer/<file_id>')
+@login_required
+def view(file_id):
+    """Renders a view of a single image"""
+    file = items.find_one({'_id': file_id})
+    if file == None:
+        flash("File not found")
+        return redirect(request.url)
+    return render_template('viewer.html' file=file)
 
 
 @app.route("/download/<string:fileid>")
@@ -103,8 +114,7 @@ def download(fileid):
 @app.route("/delete/<string:file_id>")
 @login_required
 def delete(file_id):
-
-
+    """Deletes a file given by its id"""
     # Check if the file exists
     if items.find_one({'_id': ObjectId(file_id)}) is not None:
 
