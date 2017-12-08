@@ -1,5 +1,5 @@
 from flask import Flask, flash, redirect, render_template, current_app
-from flask import request, session, send_from_directory, url_for, g
+from flask import request, session, send_from_directory, url_for
 from flask_session import Session
 from tempfile import mkdtemp
 from bson.objectid import ObjectId
@@ -175,7 +175,7 @@ def upload():
                 "location": os.path.join(UPLOAD, secure_filename(file.filename)),
                 "owner": users.find_one({'_id': ObjectId(session["user_id"])})['username'],
                 "permission": perm_tf,
-                "tags": request.form.get("new_tag").split(" "),
+                "tags": request.form.get("new_tag").split(", "),
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M")
             })
 
