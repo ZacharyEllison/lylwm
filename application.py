@@ -83,7 +83,7 @@ def view(file_id):
     if file == None:
         flash("File not found")
         return redirect(request.url)
-    return render_template('viewer.html' file=file)
+    return render_template('viewer.html', file=file)
 
 
 @app.route("/download/<string:fileid>")
