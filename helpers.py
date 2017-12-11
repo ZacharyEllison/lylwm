@@ -1,11 +1,21 @@
 import csv
 import urllib.request
-
+from pymongo import MongoClient
 from flask import redirect, render_template, request, session
 from functools import wraps
 
 """This should be filled with magic numbers and helper functions"""
 
+# Setup for pymongo with port in helpers.py and the databases I'll use
+DB_USER = "admin"
+DB_PASS = "secretpassword1"
+client = MongoClient("ds044577.mlab.com", 44577)
+home_db = client['home']
+home_db.authenticate(DB_USER, DB_PASS)
+
+users = home_db.users
+items = home_db.items
+record = home_db.record
 
 port = 31416
 UPLOAD='/home/lylwm/lylwm/static/home/'
@@ -35,3 +45,19 @@ def login_required(f):
         string user who uploaded
         whether others can delete
 """
+def check(filename):
+    '''Pass in secure_filename, check for dubplicates'''
+    # Parse the string
+    name_split = filename.split(".")
+    first = list(name_split[0])
+    # Find how many in DB
+    how_many = len(items.find_one({'name': filename}))
+
+    # If you find a file with this name already
+    if how_many > 0:
+        first.extend('_' + str(how_many))
+
+    # Add back the extension of the file
+    first.append('.' + name_split[1])
+
+    return ''.join(first)

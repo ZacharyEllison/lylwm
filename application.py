@@ -7,7 +7,7 @@ from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
-from helpers import UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required, IMG_EXTENSIONS
+from helpers import UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required, IMG_EXTENSIONS, check_file
 import pymongo
 from datetime import datetime
 import os
@@ -79,7 +79,7 @@ def explore():
 @login_required
 def view(file_id):
     """Renders a view of a single image"""
-    file = items.find_one({'_id': file_id})
+    file = items.find_one({'_id': ObjectId(file_id)})
     if file == None:
         flash("File not found")
         return redirect(request.url)
@@ -169,7 +169,9 @@ def upload():
 
         if file and allowed_file(file.filename):
 
-            file.save(os.path.join(UPLOAD, secure_filename(file.filename)))
+            name = check_file(secure_filename(file.filename))
+
+            file.save(os.path.join(UPLOAD, name))
 
             if request.form.getlist("permission"):
                 perm_tf = 'Yes'
@@ -179,7 +181,7 @@ def upload():
             # I will add to the database here
             # I want to track the filename, size, type, date added, user who added, tags, permissions,
             items.insert_one({
-                "name": file.filename,
+                "name": name,
                 "type": file.filename.split(".")[1],
                 "size": os.stat(os.path.join(UPLOAD, secure_filename(file.filename))).st_size,
                 "location": os.path.join(UPLOAD, secure_filename(file.filename)),
@@ -193,7 +195,7 @@ def upload():
             record.insert_one({
                 "user": session["user_id"],
                 "action": 'Upload',
-                "file": file.filename,
+                "file": name,
                 "Date": datetime.now().strftime("%Y-%m-%d %H:%M")
             })
 
