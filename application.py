@@ -75,11 +75,11 @@ def explore():
     return render_template("explore.html", items=list_items, img_list=IMG_EXTENSIONS)
 
 
-@app.route('/viewer/<file_id>')
+@app.route('/viewer/<file_name>')
 @login_required
 def view(file_id):
     """Renders a view of a single image"""
-    file = items.find_one({'_id': ObjectId(file_id)})
+    file = items.find_one({'name': file_name})
     if file == None:
         flash("File not found")
         return redirect(request.url)
@@ -169,7 +169,7 @@ def upload():
 
         if file and allowed_file(file.filename):
 
-            name = check_file(secure_filename(file.filename))
+            name = check(secure_filename(file.filename))
 
             file.save(os.path.join(UPLOAD, name))
 
