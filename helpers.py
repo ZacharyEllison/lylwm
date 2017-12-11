@@ -1,4 +1,5 @@
 import csv
+import os
 import urllib.request
 from pymongo import MongoClient
 from flask import redirect, render_template, request, session
@@ -18,7 +19,8 @@ items = home_db.items
 record = home_db.record
 
 port = 31416
-UPLOAD='/home/lylwm/lylwm/static/home/'
+basedir = os.path.abspath(os.path.dirname(__file__))
+UPLOAD='static/home/'
 usrnm = 'username'
 pswd = 'password'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'bmp'])
@@ -51,11 +53,12 @@ def check(filename):
     name_split = filename.split(".")
     first = list(name_split[0])
     # Find how many in DB
-    how_many = len(items.find_one({'name': filename}))
+    if items.find_one({'name': filename}):
+        how_many = len(items.find_one({'name': filename}))
 
-    # If you find a file with this name already
-    if how_many > 0:
-        first.extend('_' + str(how_many))
+        # If you find a file with this name already
+        if how_many > 0:
+            first.extend('_' + str(how_many))
 
     # Add back the extension of the file
     first.append('.' + name_split[1])

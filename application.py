@@ -7,7 +7,7 @@ from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
-from helpers import UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required, IMG_EXTENSIONS, check
+from helpers import UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required, IMG_EXTENSIONS, check, basedir
 import pymongo
 from datetime import datetime
 import os
@@ -34,7 +34,8 @@ app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config['DEBUG'] = True
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-app.config['UPLOAD_FOLDER'] = UPLOAD
+app.config['UPLOAD_FOLDER'] = os.path.join(basedir, UPLOAD)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 Session(app)
 
 # Ensure responses aren't cached
@@ -77,7 +78,7 @@ def explore():
 
 @app.route('/viewer/<file_name>')
 @login_required
-def view(file_id):
+def view(file_name):
     """Renders a view of a single image"""
     file = items.find_one({'name': file_name})
     if file == None:
@@ -170,8 +171,8 @@ def upload():
         if file and allowed_file(file.filename):
 
             name = check(secure_filename(file.filename))
-
-            file.save(os.path.join(UPLOAD, name))
+            print(os.getcwd())
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], name + '.' + file.filename.split(".")[1]))
 
             if request.form.getlist("permission"):
                 perm_tf = 'Yes'
