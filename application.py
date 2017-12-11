@@ -23,11 +23,9 @@ users = home_db.users
 items = home_db.items
 record = home_db.record
 
-print("starting server")
+# Set up the app in similar fashion to Pset 7
 app = Flask(__name__)
-app.secret_key="adventureisoutthere"
 # to make sure of the new app instance
-
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_FILE_DIR"] = mkdtemp()
@@ -51,23 +49,13 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
+# Index is a simple page need only render
 @app.route("/")
 def index():
     """Main Page"""
     return render_template("index.html")
 
-
-@app.route("/today")
-@login_required
-def today():
-    """This Page is meant to expand with time,
-    for now it will be a way to look at what was
-    uploaded or downloaded today by whom"""
-    flash("TODO")
-    return redirect("/")
-
-
+# Explore is mostly done in Jinja, iterating over the list passed in
 @app.route("/explore")
 @login_required
 def explore():
@@ -112,10 +100,12 @@ def download(fileid):
         flash("File not found")
         return redirect('/explore')
 
+
 @app.route("/delete/<string:file_id>")
 @login_required
 def delete(file_id):
     """Deletes a file given by its id"""
+
     # Check if the file exists
     if items.find_one({'_id': ObjectId(file_id)}) is not None:
 
@@ -154,7 +144,6 @@ def upload():
     if items.distinct( "tags" ):
         tags = items.distinct( "tags" )
 
-    # Flask documentation shows uploads are the following
     if request.method == 'POST':
         # check if the post request has the file
         if 'file' not in request.files:
@@ -169,17 +158,17 @@ def upload():
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
-
+            # make sure we deal only in secure names
             name = check(secure_filename(file.filename))
-            print(os.getcwd())
+            # Save the picture in the upload folder
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], name))
 
+            # track the checkbox
             if request.form.getlist("permission"):
                 perm_tf = 'Yes'
             else:
                 perm_tf = 'No'
 
-            # I will add to the database here
             # I want to track the filename, size, type, date added, user who added, tags, permissions,
             items.insert_one({
                 "name": name,
@@ -299,4 +288,3 @@ def login():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("login.html", pass_wrong = False)
-
