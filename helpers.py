@@ -54,7 +54,7 @@ def check(filename):
     first = list(name_split[0])
     # Find how many in DB
     if items.find_one({'name': filename}):
-        how_many = len(items.find_one({'name': filename}))
+        how_many = len(items.find_one({'name': filename})) % 8
 
         # If you find a file with this name already
         if how_many > 0:

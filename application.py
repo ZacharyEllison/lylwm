@@ -172,7 +172,7 @@ def upload():
 
             name = check(secure_filename(file.filename))
             print(os.getcwd())
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], name + '.' + file.filename.split(".")[1]))
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], name))
 
             if request.form.getlist("permission"):
                 perm_tf = 'Yes'
