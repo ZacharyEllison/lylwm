@@ -8,7 +8,7 @@ from functools import wraps
 
 
 port = 31416
-UPLOAD='static/home/'
+UPLOAD='/home/lylwm/lylwm/static/home/'
 usrnm = 'username'
 pswd = 'password'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx'])
