@@ -55,6 +55,7 @@ def index():
     """Main Page"""
     return render_template("index.html")
 
+
 # Explore is mostly done in Jinja, iterating over the list passed in
 @app.route("/explore")
 @login_required
