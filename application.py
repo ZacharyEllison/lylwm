@@ -7,7 +7,7 @@ from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
-from helpers import UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required, IMG_EXTENSIONS, check, basedir
+from helpers import UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required, IMG_EXTENSIONS, check, basedir, sizeof_fmt
 import pymongo
 from datetime import datetime
 import os
@@ -173,8 +173,8 @@ def upload():
             items.insert_one({
                 "name": name,
                 "type": file.filename.split(".")[1],
-                "size": os.stat(os.path.join(UPLOAD, secure_filename(file.filename))).st_size,
-                "location": os.path.join(UPLOAD, secure_filename(file.filename)),
+                "size": sizeof_fmt(os.stat(os.path.join(UPLOAD, name)).st_size),
+                "location": os.path.join(UPLOAD, name),
                 "owner": users.find_one({'_id': ObjectId(session["user_id"])})['username'],
                 "permission": perm_tf,
                 "tags": request.form.get("new_tag").split(", "),
