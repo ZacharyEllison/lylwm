@@ -19,12 +19,7 @@
                 <tr class="table-active">
                     <td>{{item['date']}}</td>
                     <td>
-                        {{% if item['type'] in img_list %}}
-                            <a href="/viewer/{{item['_id']}}">{{item['name']}}</a>
-                        {{% else %}}
-                            {{item['name']}}
-                        {{% endif %}}
-                    
+                        {{item['name']}}
                     </td>
                     <td>{{item['size']}} bytes</td>
                     <td>{{item['owner']}}</td>
