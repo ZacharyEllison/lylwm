@@ -24,7 +24,7 @@ UPLOAD='static/home/'
 usrnm = 'username'
 pswd = 'password'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'bmp', 'JPG', 'JPEG'])
-IMG_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif', 'bmp'])
+IMG_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif', 'bmp', 'JPG', 'JPEG'])
 
 def login_required(f):
     """
