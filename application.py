@@ -113,7 +113,7 @@ def delete(file_id):
         # Access as a local variable
         del_item = items.find_one({'_id': ObjectId(file_id)})
         # check permission
-        if del_item['permission'] == "Yes":
+        if del_item['permission'] == "Yes" or users.find_one({'_id': ObjectId(session["user_id"])})['username'] == 'admin':
             # Delete from database then system
             items.delete_one({'_id': ObjectId(file_id)})
             os.remove(os.path.join(os.path.join(current_app.root_path, UPLOAD), del_item['name']))
