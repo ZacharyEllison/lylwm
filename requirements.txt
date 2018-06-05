@@ -26,6 +26,7 @@ Flask-Silk==0.2
 Flask-SQLAlchemy==2.2
 Flask-Uploads==0.2.1
 future==0.16.0
+gunicorn==19.4.5
 help50==2.0.0
 html5lib==0.999999999
 icdiff==1.9.1
