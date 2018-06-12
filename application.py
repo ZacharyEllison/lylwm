@@ -15,7 +15,7 @@ import os
 # Setup for pymongo with port in helpers.py and the databases I'll use
 DB_USER = "admin"
 DB_PASS = "secretpassword1"
-client = MongoClient("mongodb://admin:secretpassword1@cluster0-shard-00-00-utnbd.mongodb.net:27017,cluster0-shard-00-01-utnbd.mongodb.net:27017,cluster0-shard-00-02-utnbd.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true")
+client = MongoClient("ds044577.mlab.com", 44577)
 home_db = client['home']
 home_db.authenticate(DB_USER, DB_PASS)
 
