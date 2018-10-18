@@ -1,0 +1,11 @@
+dependencies:
+  - pip:
+    - pytest
+    # - excavator
+    - assertpy
+    - pytest-pep8
+    - pytest-xdist
+    - httpie
+    - requests
+    - pytest-mock
+    - ipdb

@@ -6,33 +6,18 @@ from bson.objectid import ObjectId
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from pymongo import MongoClient
-from helpers import UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required, IMG_EXTENSIONS, check, basedir, sizeof_fmt
-import pymongo
+from lylwm_ui.helpers import UPLOAD, usrnm, pswd, ALLOWED_EXTENSIONS, login_required, IMG_EXTENSIONS, check, basedir, sizeof_fmt
 from datetime import datetime
 import os
 
-# Setup for pymongo with port in helpers.py and the databases I'll use
-DB_USER = "admin"
-DB_PASS = "secretpassword1"
-client = MongoClient("ds044577.mlab.com", 44577)
-home_db = client['home']
-home_db.authenticate(DB_USER, DB_PASS)
+from lylwm_ui import settings, db
 
-users = home_db.users
-items = home_db.items
-record = home_db.record
-
-# Set up the app in similar fashion to Pset 7
-app = Flask(__name__)
-# to make sure of the new app instance
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_FILE_DIR"] = mkdtemp()
-app.config['DEBUG'] = True
+app.config['DEBUG'] = settings.DEBUG
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-app.config['UPLOAD_FOLDER'] = os.path.join(basedir, UPLOAD)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 Session(app)
 
@@ -290,5 +275,41 @@ def login():
     else:
         return render_template("login.html", pass_wrong = False)
 
-if __name__ == "__main__":
-    app.run()
+
+def create(debug=False):
+    app = Flask(__name__)
+    app.debug = debug
+
+    static_path = os.path.join(app.root_path, 'static')
+    favicon_path = os.path.join(static_path, 'favicon')
+
+    @app.errorhandler(400) # bad request
+    @app.errorhandler(400) # unauthorized
+    @app.errorhandler(403) # forbidden
+    @app.errorhandler(404) # not found
+    @app.errorhandler(500) # server error
+    @app.errorhandler(503) # service unavailable
+    @json
+    def err(err):
+        if hasattr(err, 'code') and err.code == 404:
+            err.description = 'not found'
+        return {'error': err.description if hasattr(err, 'description') else 'unclear error'}, err.code if hasattr(err, 'code') else 500
+
+    @app.route('/favicon-16.png')
+    @app.route('/favicon-32.png')
+    @app.route('/favicon-96.png')
+    def favicon():
+        size = ''.join([s for s in request.path if s.isdigit()])
+        return send_from_directory(favicon_path, 'favicon-{}.png'.format(size))
+
+    return app
+
+
+app = create(
+    debug=settings.DEBUG
+)
+
+
+def run():
+    logger.info(f'starting app.. port={settings.PORT} debug={settings.DEBUG}')
+    app.run(host='0.0.0.0', port=settings.PORT)

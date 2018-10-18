@@ -1,0 +1,59 @@
+version: '2'
+
+services:
+  # docker-compose build image <- to build test image
+  image:
+      image: lylwm-dev
+      build:
+        context: .
+        args:
+          dev: 'true'
+
+  # docker-compose run app <- to run app
+  app:
+    image: lylwm-dev
+    command: bash -c "python initdb.py && python run.py"
+    volumes:
+      - .:/opt/workdir
+      - ./.root:/root
+    ports:
+      - "8081:9991"
+    environment:
+      - WEB_DEBUG=true
+      - WEB_SERVER=flask
+      - LOG_LEVEL=DEBUG
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=lylwm
+      - DB_PASS=lylwmpass
+    depends_on:
+      - db
+
+  # docker-compose run test <- to run tests and exit
+  test:
+    image: lylwm-dev
+    command: bash -c "python initdb.py && py.test -sv --junit-xml=results.xml test"
+    volumes:
+      - .:/opt/workdir
+      - ./.root:/root
+    ports:
+      - "8081:9991"
+    environment:
+      - LOG_LEVEL=DEBUG
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=lylwm
+      - DB_PASS=lylwmpass
+    depends_on:
+      - db
+
+  db:
+    image: mongo
+    volumes:
+      - ./tests/data/home.db:/var/tmp/home.db
+    ports:
+      - "5432:5432"
+    environment:
+      - MONGO_DATA_DIR=/var/tmp/home.db
+      - MONGO_LOG_DIR=/dev/null
+    command: mongod --ipv6 --journal --smallfiles --port 5432
